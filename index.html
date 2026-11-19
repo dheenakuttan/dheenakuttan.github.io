@@ -7,13 +7,11 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>Garment Printing Machinery Catalogue</title>
+<title>Printing Machinery Catalogue</title>
 <style>
-:root{--bg:#f6f5f1;--card:#fff;--ink:#1a1d33;--mute:#5d6177;--line:#dedcd3;--c:#0096b7;--m:#d6126f;--y:#f2b705;--btn:#1a1d33;--btnt:#fff;--wa:#128c4a;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14162a;--card:#1d2038;--ink:#f1f0ea;--mute:#a4a8c0;--line:#33375a;--c:#2ec4e6;--m:#ff4f9d;--y:#ffd23f;--btn:#f1f0ea;--btnt:#14162a;--wa:#2fbf71}}
-:root[data-theme="dark"]{--bg:#14162a;--card:#1d2038;--ink:#f1f0ea;--mute:#a4a8c0;--line:#33375a;--c:#2ec4e6;--m:#ff4f9d;--y:#ffd23f;--btn:#f1f0ea;--btnt:#14162a;--wa:#2fbf71}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+:root{--bg:#f6f5f1;--card:#fff;--ink:#1a1d33;--mute:#5d6177;--line:#dedcd3;--c:#0096b7;--m:#d6126f;--btn:#1a1d33;--btnt:#fff;--wa:#128c4a;--red:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14162a;--card:#1d2038;--ink:#f1f0ea;--mute:#a4a8c0;--line:#33375a;--c:#2ec4e6;--m:#ff4f9d;--btn:#f1f0ea;--btnt:#14162a;--wa:#2fbf71;--red:#ff8a80}}
+:root[data-theme="dark"]{--bg:#14162a;--card:#1d2038;--ink:#f1f0ea;--mute:#a4a8c0;--line:#33375a;--c:#2ec4e6;--m:#ff4f9d;--btn:#f1f0ea;--btnt:#14162a;--wa:#2fbf71;--red:#ff8a80}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .wrap{max-width:760px;margin:0 auto;padding:0 16px 40px}
@@ -22,19 +20,22 @@ header{padding:20px 0 12px}
 .reg{width:40px;height:40px;flex:none}
 h1{font:700 1.25rem/1.2 Georgia,"Times New Roman",serif;margin:0}
 .sub{margin:2px 0 0;color:var(--mute);font-size:.875rem}
-.bar{display:flex;height:4px;margin:14px 0}
-.bar i{flex:1}
-input[type=search]{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
-input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--c);outline-offset:2px}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0}
+.bar{display:flex;height:4px;margin:14px 0}.bar i{flex:1}
+input,select,textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit}
+textarea{min-height:110px}
+label{display:block;margin:12px 0 4px;font-size:.875rem;color:var(--mute)}
+:focus-visible{outline:2px solid var(--c);outline-offset:2px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px}
 .chip{flex:none;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink);font:inherit;font-size:.875rem;cursor:pointer}
 .chip[aria-pressed=true]{background:var(--btn);color:var(--btnt);border-color:var(--btn)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:10px}
 @media(min-width:620px){.grid{grid-template-columns:repeat(3,1fr)}}
 .card{display:flex;flex-direction:column;text-align:left;padding:0;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;cursor:pointer;overflow:hidden}
-.card svg{display:block;width:100%;height:auto}
-.cb{padding:10px 12px 12px}
-.cat{font-size:.75rem;color:var(--mute)}
+.card.sold .ph img,.card.sold .ph svg{opacity:.45}
+.ph{position:relative;aspect-ratio:5/3;background:var(--line)}
+.ph img,.ph svg{display:block;width:100%;height:100%;object-fit:cover}
+.tag{position:absolute;top:8px;left:8px;background:var(--red);color:#fff;font-weight:700;font-size:.75rem;padding:3px 10px;border-radius:6px}
+.cb{padding:10px 12px 12px}.cat{font-size:.75rem;color:var(--mute)}
 .nm{font-weight:600;font-size:.9375rem;line-height:1.3;margin:2px 0 6px}
 .pr{font-weight:700;color:var(--m)}
 .empty{grid-column:1/-1;padding:32px 0;text-align:center;color:var(--mute)}
@@ -42,15 +43,23 @@ input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(-
 .sheet.on{display:flex}
 .panel{background:var(--bg);width:100%;max-width:760px;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
 .panel h2{font:700 1.375rem/1.25 Georgia,serif;margin:12px 0 4px}
-.close{float:right;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer}
+.close{float:right}
+.photos{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory}
+.photos img{flex:none;width:88%;max-height:300px;object-fit:cover;border-radius:12px;scroll-snap-align:start}
 table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.9375rem}
 td{padding:9px 0;border-bottom:1px solid var(--line);vertical-align:top}
 td:first-child{color:var(--mute);width:42%;padding-right:8px}
 .act{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.b{display:block;text-align:center;text-decoration:none;padding:13px;border-radius:10px;font-weight:600}
-.wa{background:var(--wa);color:#fff}
-.call{border:1.5px solid var(--btn);color:var(--ink)}
-.note{margin-top:20px;color:var(--mute);font-size:.8125rem}
+.b{display:block;text-align:center;text-decoration:none;padding:13px;border:1.5px solid var(--btn);border-radius:10px;background:var(--btn);color:var(--btnt);font:inherit;font-weight:600;cursor:pointer}
+.b.o{background:transparent;color:var(--ink)}.b.wa{background:var(--wa);border-color:var(--wa);color:#fff}.b.del{background:transparent;border-color:var(--red);color:var(--red)}
+.sm{padding:8px 12px;font-size:.875rem}
+.admin{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.soldbar{margin-top:14px;padding:13px;border-radius:10px;background:var(--red);color:#fff;text-align:center;font-weight:700}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.thumbs div{position:relative}.thumbs img{width:76px;height:76px;object-fit:cover;border-radius:8px}
+.thumbs button{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:var(--red);color:#fff;cursor:pointer}
+.foot{margin-top:28px;text-align:center;font-size:.8125rem;color:var(--mute)}
+.foot button{background:none;border:0;color:var(--mute);text-decoration:underline;font:inherit;cursor:pointer}
 </style>
 </head>
 <body>
@@ -58,49 +67,91 @@ td:first-child{color:var(--mute);width:42%;padding-right:8px}
 <header>
   <div class="brand">
     <svg class="reg" viewBox="0 0 40 40" fill="none" stroke-width="2" aria-hidden="true"><circle cx="20" cy="20" r="11" stroke="#0096b7"/><circle cx="20" cy="20" r="5" stroke="#d6126f"/><path d="M20 2v10M20 28v10M2 20h10M28 20h10" stroke="#f2b705"/></svg>
-    <div><h1 id="biz"></h1><p class="sub">Garment printing machinery</p></div>
+    <div><h1 id="biz"></h1><p class="sub">Used and new garment printing machinery</p></div>
   </div>
   <div class="bar" aria-hidden="true"><i style="background:#0096b7"></i><i style="background:#d6126f"></i><i style="background:#f2b705"></i><i style="background:#1a1d33"></i></div>
+  <div class="admin" id="ad"></div>
   <input type="search" id="q" placeholder="Search machines" aria-label="Search machines">
-  <div class="chips" id="chips" role="group" aria-label="Categories"></div>
+  <div class="chips" id="sc" role="group" aria-label="Availability"></div>
+  <div class="chips" id="cc" role="group" aria-label="Categories"></div>
 </header>
 <main><div class="grid" id="grid"></div>
-<p class="note">Sample products and prices. Replace with your own details.</p></main>
+<div class="foot" id="foot"></div></main>
 </div>
-<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Machine details"><div class="panel" id="panel"></div></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="panel" id="panel"></div></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="config.js"></script>
 <script>
-const BIZ="Your Business Name", WA="919999999999", PHONE="+919999999999";
-const COLORS={"DTG Printers":"#0096b7","Screen Printing":"#d6126f","Heat Press":"#f2b705","Dryers":"#6b5bd6","Embroidery":"#1f9d6b"};
-const P=[
-{n:"A3 DTG Printer",c:"DTG Printers",p:450000,s:{"Print area":"29 × 42 cm","Inks":"CMYK + White","Best for":"Cotton T-shirts, small batches","Power":"220V, single phase","Warranty":"1 year"}},
-{n:"A4 DTG Printer",c:"DTG Printers",p:285000,s:{"Print area":"21 × 29 cm","Inks":"CMYK + White","Best for":"Starter setup, custom orders","Power":"220V, single phase","Warranty":"1 year"}},
-{n:"6 Colour 6 Station Screen Printing Machine",c:"Screen Printing",p:65000,s:{"Type":"Manual carousel","Stations":"6 colours, 6 stations","Frame size":"23 × 31 in","Best for":"Bulk T-shirt printing","Warranty":"1 year"}},
-{n:"Automatic 4 Colour Screen Printing Machine",c:"Screen Printing",p:185000,s:{"Type":"Automatic carousel","Colours":"4","Output":"Up to 400 pcs/hour","Power":"3 phase","Warranty":"1 year"}},
-{n:"Heat Press 15 × 15 in",c:"Heat Press",p:9500,s:{"Plate size":"15 × 15 in","Temperature":"Up to 250 °C","Timer":"Digital","Use":"Transfers, vinyl, sublimation","Warranty":"6 months"}},
-{n:"Flash Cure Dryer",c:"Dryers",p:24000,s:{"Plate size":"16 × 20 in","Heating":"Infrared","Control":"Digital temperature","Use":"Between colours on screen printing","Warranty":"1 year"}},
-{n:"Conveyor Tunnel Dryer",c:"Dryers",p:120000,s:{"Belt width":"24 in","Heating":"Electric, 6 kW","Control":"Speed and temperature","Use":"Plastisol and water-based inks","Warranty":"1 year"}},
-{n:"Single Head Embroidery Machine",c:"Embroidery",p:210000,s:{"Heads":"1","Needles":"15","Speed":"Up to 1000 rpm","Embroidery area":"40 × 40 cm","Warranty":"1 year"}}
-];
-const inr=v=>"₹"+new Intl.NumberFormat("en-IN").format(v);
+const CFG=window.FB_CONFIG||{},LIVE=!!(CFG.apiKey&&!/^PASTE/.test(CFG.apiKey)&&window.firebase);
+const CATS=["Screen Printing","DTG Printers","Heat Press","Dryers","Embroidery","Other"],CONDS=["New","Like new","Good","Fair","For parts"];
+let S={name:"Your Business Name",wa:"919999999999",phone:"+919999999999"},M=[],cat="All",st="all",admin=false,ph=[],db,auth;
 const $=id=>document.getElementById(id);
-let cat="All";
-$("biz").textContent=BIZ;
-function art(c){const k=COLORS[c];return `<svg viewBox="0 0 200 120" aria-hidden="true"><rect width="200" height="120" fill="${k}" opacity=".16"/><rect x="40" y="62" width="120" height="30" rx="4" fill="${k}"/><rect x="58" y="34" width="84" height="28" rx="3" fill="${k}" opacity=".6"/><rect x="30" y="92" width="140" height="6" fill="${k}" opacity=".85"/><circle cx="150" cy="77" r="5" fill="#fff"/></svg>`}
-function chips(){const cs=["All",...Object.keys(COLORS)];$("chips").innerHTML=cs.map(c=>`<button class="chip" aria-pressed="${c===cat}" data-c="${c}">${c}</button>`).join("")}
-function list(){const t=$("q").value.trim().toLowerCase();
-const r=P.map((x,i)=>({...x,i})).filter(x=>(cat==="All"||x.c===cat)&&(x.n+" "+x.c).toLowerCase().includes(t));
-$("grid").innerHTML=r.length?r.map(x=>`<button class="card" data-i="${x.i}">${art(x.c)}<div class="cb"><div class="cat">${x.c}</div><div class="nm">${x.n}</div><div class="pr">${inr(x.p)}</div></div></button>`).join(""):`<div class="empty">No machines found. Try another name or category.</div>`}
-function open(i){const x=P[i];
-const msg=encodeURIComponent(`Hello, I’m interested in the ${x.n}. Please share the best price and details.`);
-$("panel").innerHTML=`<button class="close" id="cl">Close</button>${art(x.c)}<h2>${x.n}</h2><div class="pr" style="font-size:1.125rem">${inr(x.p)}</div><table>${Object.entries(x.s).map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("")}</table><div class="act"><a class="b wa" href="https://wa.me/${WA}?text=${msg}" target="_blank" rel="noopener">WhatsApp enquiry</a><a class="b call" href="tel:${PHONE}">Call now</a></div>`;
-$("sheet").classList.add("on");$("cl").focus()}
-function close(){$("sheet").classList.remove("on")}
-$("chips").addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(!b)return;cat=b.dataset.c;chips();list()});
-$("grid").addEventListener("click",e=>{const b=e.target.closest("[data-i]");if(b)open(+b.dataset.i)});
-$("sheet").addEventListener("click",e=>{if(e.target.id==="sheet"||e.target.id==="cl")close()});
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const inr=v=>v?"₹"+new Intl.NumberFormat("en-IN").format(v):"Price on request";
+const art='<svg viewBox="0 0 200 120" aria-hidden="true"><rect width="200" height="120" fill="#8a8fa8" opacity=".25"/><rect x="40" y="62" width="120" height="30" rx="4" fill="#8a8fa8"/><rect x="58" y="34" width="84" height="28" rx="3" fill="#8a8fa8" opacity=".6"/></svg>';
+function head(){$("biz").textContent=S.name}
+function render(){
+ $("ad").innerHTML=admin?'<button class="b sm" data-a="add">+ Add machine</button><button class="b sm o" data-a="set">Settings</button><button class="b sm o" data-a="out">Log out</button>':"";
+ $("sc").innerHTML=[["all","All"],["available","Available"],["sold","Sold"]].map(([k,l])=>`<button class="chip" aria-pressed="${k===st}" data-s="${k}">${l}</button>`).join("");
+ $("cc").innerHTML=["All",...CATS].map(c=>`<button class="chip" aria-pressed="${c===cat}" data-c="${c}">${c}</button>`).join("");
+ const t=$("q").value.trim().toLowerCase();
+ const r=M.filter(x=>(cat==="All"||x.cat===cat)&&(st==="all"||(st==="sold")==!!x.sold)&&((x.name||"")+" "+(x.cat||"")).toLowerCase().includes(t)).sort((a,b)=>!!a.sold-!!b.sold);
+ $("grid").innerHTML=r.length?r.map(x=>`<button class="card${x.sold?" sold":""}" data-i="${x.id}"><div class="ph">${x.photos&&x.photos[0]?`<img src="${x.photos[0]}" alt="">`:art}${x.sold?'<span class="tag">SOLD</span>':""}</div><div class="cb"><div class="cat">${esc(x.cat)}${x.cond?", "+esc(x.cond):""}</div><div class="nm">${esc(x.name)}</div><div class="pr">${inr(x.price)}</div></div></button>`).join(""):'<div class="empty">No machines here yet. Try another filter.</div>';
+ $("foot").innerHTML=LIVE?(admin?"":'<button data-a="login">Owner login</button>'):"Demo data. Connect Firebase to add and edit machines.";
+}
+const panel=h=>{$("panel").innerHTML=h;$("sheet").classList.add("on")};
+const close=()=>$("sheet").classList.remove("on");
+function show(id){const x=M.find(m=>m.id===id);if(!x)return;
+ const rows=(x.specs||"").split("\n").filter(l=>l.trim()).map(l=>{const k=l.indexOf(":");return k>0?`<tr><td>${esc(l.slice(0,k))}</td><td>${esc(l.slice(k+1))}</td></tr>`:`<tr><td colspan="2">${esc(l)}</td></tr>`}).join("");
+ const msg=encodeURIComponent(`Hello, I’m interested in the ${x.name}. Is it available? Please share details.`);
+ panel(`<button class="b sm o close" data-a="x">Close</button>${x.photos&&x.photos.length?`<div class="photos">${x.photos.map(p=>`<img src="${p}" alt="">`).join("")}</div>`:art}<h2>${esc(x.name)}</h2><div class="pr" style="font-size:1.125rem">${inr(x.price)}</div><div class="sub">${esc([x.cond,x.year].filter(Boolean).join(", "))}</div><table>${rows}</table>${x.sold?'<div class="soldbar">This machine has been sold</div>':`<div class="act"><a class="b wa" href="https://wa.me/${esc(S.wa)}?text=${msg}" target="_blank" rel="noopener">WhatsApp enquiry</a><a class="b o" href="tel:${esc(S.phone)}">Call now</a></div>`}${admin?`<div class="act"><button class="b o" data-e="${x.id}">Edit</button><button class="b o" data-t="${x.id}">${x.sold?"Mark available":"Mark as sold"}</button></div><div class="act"><button class="b del" data-d="${x.id}">Delete</button></div>`:""}`);}
+function form(id){const x=M.find(m=>m.id===id)||{};ph=[...(x.photos||[])];
+ panel(`<button class="b sm o close" data-a="x">Close</button><h2>${id?"Edit machine":"Add machine"}</h2>
+ <label>Machine name</label><input id="fn" value="${esc(x.name)}">
+ <label>Category</label><select id="fc">${CATS.map(c=>`<option${c===x.cat?" selected":""}>${c}</option>`).join("")}</select>
+ <label>Price in ₹ (leave empty for “Price on request”)</label><input id="fp" type="number" inputmode="numeric" value="${x.price||""}">
+ <label>Condition</label><select id="fd">${CONDS.map(c=>`<option${c===x.cond?" selected":""}>${c}</option>`).join("")}</select>
+ <label>Year or age</label><input id="fy" value="${esc(x.year)}">
+ <label>Details, one per line like “Print area: 40 × 50 cm”</label><textarea id="fs">${esc(x.specs)}</textarea>
+ <label>Photos (up to 3)</label><input id="fi" type="file" accept="image/*" multiple><div class="thumbs" id="th"></div>
+ <div class="act"><button class="b" data-sv="${id||""}">Save</button><button class="b o" data-a="x">Cancel</button></div>`);thumbs()}
+const thumbs=()=>{$("th").innerHTML=ph.map((p,i)=>`<div><img src="${p}" alt=""><button data-r="${i}" aria-label="Remove photo">×</button></div>`).join("")};
+const shrink=f=>new Promise(r=>{const i=new Image,u=URL.createObjectURL(f);i.onload=()=>{const k=Math.min(1,900/Math.max(i.width,i.height)),c=document.createElement("canvas");c.width=i.width*k;c.height=i.height*k;c.getContext("2d").drawImage(i,0,0,c.width,c.height);URL.revokeObjectURL(u);r(c.toDataURL("image/jpeg",.7))};i.src=u});
+async function save(id){const d={name:$("fn").value.trim(),cat:$("fc").value,price:+$("fp").value||0,cond:$("fd").value,year:$("fy").value.trim(),specs:$("fs").value,photos:ph};
+ if(!d.name){alert("Enter the machine name.");return}
+ try{if(id)await db.collection("machines").doc(id).update(d);else await db.collection("machines").add({...d,sold:false,createdAt:Date.now()});close()}catch(e){alert("Could not save: "+e.message)}}
+function settings(){panel(`<button class="b sm o close" data-a="x">Close</button><h2>Settings</h2><label>Business name</label><input id="sn" value="${esc(S.name)}"><label>WhatsApp number with country code, digits only (91…)</label><input id="sw" inputmode="numeric" value="${esc(S.wa)}"><label>Phone number for calls</label><input id="sp" value="${esc(S.phone)}"><div class="act"><button class="b" data-a="ss">Save</button><button class="b o" data-a="x">Cancel</button></div>`)}
+function login(){panel(`<button class="b sm o close" data-a="x">Close</button><h2>Owner login</h2><label>Email</label><input id="le" type="email" autocomplete="username"><label>Password</label><input id="lp" type="password" autocomplete="current-password"><div class="act"><button class="b" data-a="li">Log in</button></div>`)}
+document.addEventListener("click",async e=>{const t=e.target;
+ if(t.id==="sheet"){close();return}
+ const b=t.closest("[data-i],[data-s],[data-c],[data-a],[data-e],[data-t],[data-d],[data-sv],[data-r]");if(!b)return;const D=b.dataset;
+ try{
+ if(D.i)show(D.i);
+ else if(D.s){st=D.s;render()}else if(D.c){cat=D.c;render()}
+ else if(D.e)form(D.e);
+ else if(D.t){const x=M.find(m=>m.id===D.t);await db.collection("machines").doc(D.t).update({sold:!x.sold,soldAt:x.sold?null:Date.now()});close()}
+ else if(D.d){if(confirm("Delete this machine permanently?")){await db.collection("machines").doc(D.d).delete();close()}}
+ else if(D.sv!==undefined)save(D.sv);
+ else if(D.r){ph.splice(+D.r,1);thumbs()}
+ else if(D.a==="x")close();else if(D.a==="add")form();else if(D.a==="set")settings();else if(D.a==="login")login();
+ else if(D.a==="out")await auth.signOut();
+ else if(D.a==="li"){await auth.signInWithEmailAndPassword($("le").value.trim(),$("lp").value);close()}
+ else if(D.a==="ss"){await db.doc("settings/main").set({name:$("sn").value.trim()||S.name,wa:$("sw").value.replace(/\D/g,""),phone:$("sp").value.trim()},{merge:true});close()}
+ }catch(err){alert("Error: "+err.message)}});
+document.addEventListener("change",async e=>{if(e.target.id!=="fi")return;for(const f of [...e.target.files]){if(ph.length>=3)break;ph.push(await shrink(f))}e.target.value="";thumbs()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
-$("q").addEventListener("input",list);
-chips();list();
+$("q").addEventListener("input",render);
+if(LIVE){firebase.initializeApp(CFG);db=firebase.firestore();auth=firebase.auth();
+ db.collection("machines").orderBy("createdAt","desc").onSnapshot(s=>{M=s.docs.map(d=>({id:d.id,...d.data()}));render()});
+ db.doc("settings/main").onSnapshot(d=>{if(d.exists){S={...S,...d.data()};head()}});
+ auth.onAuthStateChanged(u=>{admin=!!u;render()});
+}else{M=[
+ {id:"d1",name:"6 Colour 6 Station Screen Printing Machine",cat:"Screen Printing",price:55000,cond:"Good",year:"2021",specs:"Stations: 6\nFrame size: 23 × 31 in\nRunning condition: Working"},
+ {id:"d2",name:"A3 DTG Printer",cat:"DTG Printers",price:320000,cond:"Like new",year:"2023",specs:"Print area: 29 × 42 cm\nInks: CMYK + White"},
+ {id:"d3",name:"Heat Press 15 × 15 in",cat:"Heat Press",price:7500,cond:"Fair",year:"2020",specs:"Temperature: up to 250 °C",sold:true}];}
+head();render();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>
 </body>
