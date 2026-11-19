@@ -1,7 +1,6 @@
-// Paste your Firebase web app config here (Firebase console > Project settings > Your apps).
 window.FB_CONFIG = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyBBxXml5h1Ts0H1mRXnKBwPCsvw7OXW0fs",
+  authDomain: "machinery-catalogue-c5321.firebaseapp.com",
+  projectId: "machinery-catalogue-c5321",
+  appId: "1:402437069890:web:5fc7452c518d9623be21db"
 };
