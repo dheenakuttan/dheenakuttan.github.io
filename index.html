@@ -156,3 +156,14 @@ if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.se
 </script>
 </body>
 </html>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe.css">
+<script type="module">
+import PhotoSwipeLightbox from 'https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js';
+import PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe.esm.min.js';
+new PhotoSwipeLightbox({
+  gallery: '.machine-images',
+  children: 'a',
+  pswpModule: PhotoSwipe
+}).init();
+</script> 
+<a href="IMG_URL" data-pswp-width="1200" data-pswp-height="900"><img src="IMG_URL"></a>
