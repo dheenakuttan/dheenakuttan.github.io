@@ -39,13 +39,13 @@ label{display:block;margin:12px 0 4px;font-size:.875rem;color:var(--mute)}
 .nm{font-weight:600;font-size:.9375rem;line-height:1.3;margin:2px 0 6px}
 .pr{font-weight:700;color:var(--m)}
 .empty{grid-column:1/-1;padding:32px 0;text-align:center;color:var(--mute)}
-.sheet{position:fixed;inset:0;background:rgba(10,12,30,.55);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{position:fixed;inset:0;background:rgba(10,12,30,.55);display:none;align-items:flex-end;justify-content:center;z-index:35}
 .sheet.on{display:flex}
 .panel{background:var(--bg);width:100%;max-width:760px;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))}
 .panel h2{font:700 1.375rem/1.25 Georgia,serif;margin:12px 0 4px}
 .close{float:right}
 .photos{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory}
-.photos img{flex:none;width:88%;max-height:300px;object-fit:cover;border-radius:12px;scroll-snap-align:start}
+.photos img{flex:none;width:88%;max-height:300px;object-fit:cover;border-radius:12px;scroll-snap-align:start;cursor:zoom-in}
 table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.9375rem}
 td{padding:9px 0;border-bottom:1px solid var(--line);vertical-align:top}
 td:first-child{color:var(--mute);width:42%;padding-right:8px}
@@ -60,6 +60,21 @@ td:first-child{color:var(--mute);width:42%;padding-right:8px}
 .thumbs button{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:0;background:var(--red);color:#fff;cursor:pointer}
 .foot{margin-top:28px;text-align:center;font-size:.8125rem;color:var(--mute)}
 .foot button{background:none;border:0;color:var(--mute);text-decoration:underline;font:inherit;cursor:pointer}
+/* customer login gate */
+#gate{position:fixed;inset:0;background:var(--bg);z-index:30;display:none;overflow-y:auto;padding:24px 16px}
+#gate.on{display:block}
+.gb{max-width:420px;margin:8vh auto 0}
+.gb p{color:var(--mute);margin:8px 0 16px}
+.pre{display:flex;gap:8px;align-items:center}.pre span{color:var(--mute)}
+.err{color:var(--red);font-size:.875rem;min-height:1.3em;margin:8px 0}
+.lnk{background:none;border:0;color:var(--mute);text-decoration:underline;font:inherit;font-size:.8125rem;cursor:pointer;margin-top:18px}
+/* image zoom viewer */
+#zv{position:fixed;inset:0;background:#000;z-index:50;display:none;touch-action:none;user-select:none;-webkit-user-select:none;overflow:hidden}
+#zv.on{display:block}
+#zi{position:absolute;inset:0;margin:auto;max-width:100%;max-height:100%;transform-origin:center;will-change:transform;-webkit-user-drag:none;pointer-events:none}
+.zx{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px;z-index:2;padding:8px 14px;border:0;border-radius:999px;background:rgba(255,255,255,.18);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+#zc{position:absolute;top:calc(20px + env(safe-area-inset-top,0px));left:16px;color:#fff;font-size:.875rem}
+.zh{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:#bbb;font-size:.8125rem}
 </style>
 </head>
 <body>
@@ -78,7 +93,26 @@ td:first-child{color:var(--mute);width:42%;padding-right:8px}
 <main><div class="grid" id="grid"></div>
 <div class="foot" id="foot"></div></main>
 </div>
+
+<div id="gate" role="dialog" aria-modal="true"><div class="gb">
+  <h1 id="gbiz"></h1>
+  <p>Enter your name and mobile number to view the machines.</p>
+  <label for="gn">Your name</label><input id="gn" autocomplete="name">
+  <label for="gp">Mobile number</label>
+  <div class="pre"><span>+91</span><input id="gp" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national"></div>
+  <div class="err" id="ge" role="alert"></div>
+  <button class="b" data-a="enter" style="width:100%">Continue</button>
+  <button class="lnk" data-a="login">Owner login</button>
+</div></div>
+
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="panel" id="panel"></div></div>
+
+<div id="zv" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <span id="zc"></span><button class="zx" data-a="zx">Close</button>
+  <img id="zi" alt="">
+  <div class="zh">Pinch or double-tap to zoom. Swipe to change photo.</div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -86,27 +120,27 @@ td:first-child{color:var(--mute);width:42%;padding-right:8px}
 <script>
 const CFG=window.FB_CONFIG||{},LIVE=!!(CFG.apiKey&&!/^PASTE/.test(CFG.apiKey)&&window.firebase);
 const CATS=["Screen Printing","DTG Printers","Heat Press","Dryers","Embroidery","Other"],CONDS=["New","Like new","Good","Fair","For parts"];
-let S={name:"Your Business Name",wa:"919999999999",phone:"+919999999999"},M=[],cat="All",st="all",admin=false,ph=[],db,auth;
+let S={name:"Your Business Name",wa:"919999999999",phone:"+919999999999"},M=[],cat="All",st="all",admin=false,ph=[],curPh=[],db,auth;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const inr=v=>v?"₹"+new Intl.NumberFormat("en-IN").format(v):"Price on request";
 const art='<svg viewBox="0 0 200 120" aria-hidden="true"><rect width="200" height="120" fill="#8a8fa8" opacity=".25"/><rect x="40" y="62" width="120" height="30" rx="4" fill="#8a8fa8"/><rect x="58" y="34" width="84" height="28" rx="3" fill="#8a8fa8" opacity=".6"/></svg>';
-function head(){$("biz").textContent=S.name}
+function head(){$("biz").textContent=S.name;$("gbiz").textContent=S.name}
 function render(){
- $("ad").innerHTML=admin?'<button class="b sm" data-a="add">+ Add machine</button><button class="b sm o" data-a="set">Settings</button><button class="b sm o" data-a="out">Log out</button>':"";
+ $("ad").innerHTML=admin?'<button class="b sm" data-a="add">+ Add machine</button><button class="b sm o" data-a="cust">Customers</button><button class="b sm o" data-a="set">Settings</button><button class="b sm o" data-a="out">Log out</button>':"";
  $("sc").innerHTML=[["all","All"],["available","Available"],["sold","Sold"]].map(([k,l])=>`<button class="chip" aria-pressed="${k===st}" data-s="${k}">${l}</button>`).join("");
  $("cc").innerHTML=["All",...CATS].map(c=>`<button class="chip" aria-pressed="${c===cat}" data-c="${c}">${c}</button>`).join("");
  const t=$("q").value.trim().toLowerCase();
  const r=M.filter(x=>(cat==="All"||x.cat===cat)&&(st==="all"||(st==="sold")==!!x.sold)&&((x.name||"")+" "+(x.cat||"")).toLowerCase().includes(t)).sort((a,b)=>!!a.sold-!!b.sold);
  $("grid").innerHTML=r.length?r.map(x=>`<button class="card${x.sold?" sold":""}" data-i="${x.id}"><div class="ph">${x.photos&&x.photos[0]?`<img src="${x.photos[0]}" alt="">`:art}${x.sold?'<span class="tag">SOLD</span>':""}</div><div class="cb"><div class="cat">${esc(x.cat)}${x.cond?", "+esc(x.cond):""}</div><div class="nm">${esc(x.name)}</div><div class="pr">${inr(x.price)}</div></div></button>`).join(""):'<div class="empty">No machines here yet. Try another filter.</div>';
- $("foot").innerHTML=LIVE?(admin?"":'<button data-a="login">Owner login</button>'):"Demo data. Connect Firebase to add and edit machines.";
+ $("foot").innerHTML=LIVE?(admin?"":'<button data-a="login">Owner login</button> &nbsp; <button data-a="cout">Change number</button>'):"Demo data. Connect Firebase to add and edit machines.";
 }
 const panel=h=>{$("panel").innerHTML=h;$("sheet").classList.add("on")};
 const close=()=>$("sheet").classList.remove("on");
-function show(id){const x=M.find(m=>m.id===id);if(!x)return;
+function show(id){const x=M.find(m=>m.id===id);if(!x)return;curPh=x.photos||[];
  const rows=(x.specs||"").split("\n").filter(l=>l.trim()).map(l=>{const k=l.indexOf(":");return k>0?`<tr><td>${esc(l.slice(0,k))}</td><td>${esc(l.slice(k+1))}</td></tr>`:`<tr><td colspan="2">${esc(l)}</td></tr>`}).join("");
  const msg=encodeURIComponent(`Hello, I’m interested in the ${x.name}. Is it available? Please share details.`);
- panel(`<button class="b sm o close" data-a="x">Close</button>${x.photos&&x.photos.length?`<div class="photos">${x.photos.map(p=>`<img src="${p}" alt="">`).join("")}</div>`:art}<h2>${esc(x.name)}</h2><div class="pr" style="font-size:1.125rem">${inr(x.price)}</div><div class="sub">${esc([x.cond,x.year].filter(Boolean).join(", "))}</div><table>${rows}</table>${x.sold?'<div class="soldbar">This machine has been sold</div>':`<div class="act"><a class="b wa" href="https://wa.me/${esc(S.wa)}?text=${msg}" target="_blank" rel="noopener">WhatsApp enquiry</a><a class="b o" href="tel:${esc(S.phone)}">Call now</a></div>`}${admin?`<div class="act"><button class="b o" data-e="${x.id}">Edit</button><button class="b o" data-t="${x.id}">${x.sold?"Mark available":"Mark as sold"}</button></div><div class="act"><button class="b del" data-d="${x.id}">Delete</button></div>`:""}`);}
+ panel(`<button class="b sm o close" data-a="x">Close</button>${curPh.length?`<div class="photos">${curPh.map((p,i)=>`<img data-z="${i}" src="${p}" alt="Machine photo ${i+1}">`).join("")}</div><div class="sub">Tap a photo to zoom</div>`:art}<h2>${esc(x.name)}</h2><div class="pr" style="font-size:1.125rem">${inr(x.price)}</div><div class="sub">${esc([x.cond,x.year].filter(Boolean).join(", "))}</div><table>${rows}</table>${x.sold?'<div class="soldbar">This machine has been sold</div>':`<div class="act"><a class="b wa" href="https://wa.me/${esc(S.wa)}?text=${msg}" target="_blank" rel="noopener">WhatsApp enquiry</a><a class="b o" href="tel:${esc(S.phone)}">Call now</a></div>`}${admin?`<div class="act"><button class="b o" data-e="${x.id}">Edit</button><button class="b o" data-t="${x.id}">${x.sold?"Mark available":"Mark as sold"}</button></div><div class="act"><button class="b del" data-d="${x.id}">Delete</button></div>`:""}`);}
 function form(id){const x=M.find(m=>m.id===id)||{};ph=[...(x.photos||[])];
  panel(`<button class="b sm o close" data-a="x">Close</button><h2>${id?"Edit machine":"Add machine"}</h2>
  <label>Machine name</label><input id="fn" value="${esc(x.name)}">
@@ -124,46 +158,80 @@ async function save(id){const d={name:$("fn").value.trim(),cat:$("fc").value,pri
  try{if(id)await db.collection("machines").doc(id).update(d);else await db.collection("machines").add({...d,sold:false,createdAt:Date.now()});close()}catch(e){alert("Could not save: "+e.message)}}
 function settings(){panel(`<button class="b sm o close" data-a="x">Close</button><h2>Settings</h2><label>Business name</label><input id="sn" value="${esc(S.name)}"><label>WhatsApp number with country code, digits only (91…)</label><input id="sw" inputmode="numeric" value="${esc(S.wa)}"><label>Phone number for calls</label><input id="sp" value="${esc(S.phone)}"><div class="act"><button class="b" data-a="ss">Save</button><button class="b o" data-a="x">Cancel</button></div>`)}
 function login(){panel(`<button class="b sm o close" data-a="x">Close</button><h2>Owner login</h2><label>Email</label><input id="le" type="email" autocomplete="username"><label>Password</label><input id="lp" type="password" autocomplete="current-password"><div class="act"><button class="b" data-a="li">Log in</button></div>`)}
+
+/* ---- customer login (name + mobile number) ---- */
+function cust(){try{return JSON.parse(localStorage.getItem("cust")||"null")}catch(e){return null}}
+function gate(){$("gate").classList.toggle("on",LIVE&&!admin&&!cust())}
+const stamp=(n,p)=>db.collection("customers").doc(p).set({name:n,phone:p,lastLogin:Date.now(),visits:firebase.firestore.FieldValue.increment(1)},{merge:true});
+async function enter(){const n=$("gn").value.trim(),p=$("gp").value.replace(/\D/g,"").slice(-10);
+ if(n.length<2){$("ge").textContent="Enter your name.";return}
+ if(!/^[6-9]\d{9}$/.test(p)){$("ge").textContent="Enter a valid 10-digit mobile number.";return}
+ $("ge").textContent="";
+ try{await stamp(n,p);try{localStorage.setItem("cust",JSON.stringify({name:n,phone:p}))}catch(e){}gate()}
+ catch(err){$("ge").textContent="Could not continue: "+err.message}}
+async function custs(){const top='<button class="b sm o close" data-a="x">Close</button>';
+ panel(top+'<h2>Customers</h2><div class="sub">Loading…</div>');
+ try{const s=await db.collection("customers").orderBy("lastLogin","desc").get();
+ const rows=s.docs.map(d=>{const c=d.data();return `<tr><td style="color:var(--ink);width:auto"><b>${esc(c.name)}</b><br><span class="sub">${esc(new Date(c.lastLogin||0).toLocaleString("en-IN"))}, ${+c.visits||1} visit(s)</span></td><td style="text-align:right"><a href="tel:+91${esc(c.phone)}">${esc(c.phone)}</a></td></tr>`}).join("");
+ panel(top+`<h2>Customers (${s.size})</h2><table>${rows||'<tr><td>No customers yet.</td></tr>'}</table>`)}
+ catch(err){panel(top+'<h2>Customers</h2><div class="sub">Could not load: '+esc(err.message)+'</div>')}}
+
+/* ---- Flipkart-style photo zoom ---- */
+const Z={list:[],i:0,s:1,x:0,y:0,p:new Map(),d0:0,s0:1,lt:0,sx:0,sy:0,multi:false};
+const zd=()=>{const a=[...Z.p.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1};
+const zT=()=>{$("zi").style.transform=`translate(${Z.x}px,${Z.y}px) scale(${Z.s})`};
+function zC(){const i=$("zi"),mx=Math.max(0,(i.offsetWidth*Z.s-innerWidth)/2),my=Math.max(0,(i.offsetHeight*Z.s-innerHeight)/2);Z.x=Math.min(mx,Math.max(-mx,Z.x));Z.y=Math.min(my,Math.max(-my,Z.y))}
+function zShow(){Z.s=1;Z.x=0;Z.y=0;zT();$("zi").src=Z.list[Z.i];$("zc").textContent=(Z.i+1)+" / "+Z.list.length}
+function zOpen(l,i){Z.list=l;Z.i=i;Z.p.clear();zShow();$("zv").classList.add("on")}
+function zClose(){$("zv").classList.remove("on");$("zi").removeAttribute("src")}
+const zv=$("zv");
+zv.addEventListener("pointerdown",e=>{if(e.target.closest("button"))return;Z.p.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(Z.p.size===1){Z.sx=e.clientX;Z.sy=e.clientY;Z.multi=false}else if(Z.p.size===2){Z.multi=true;Z.d0=zd();Z.s0=Z.s}});
+zv.addEventListener("pointermove",e=>{const o=Z.p.get(e.pointerId);if(!o)return;const dx=e.clientX-o.x,dy=e.clientY-o.y;o.x=e.clientX;o.y=e.clientY;
+ if(Z.p.size===2){Z.s=Math.min(5,Math.max(1,Z.s0*zd()/Z.d0));zC();zT()}
+ else if(Z.s>1){Z.x+=dx;Z.y+=dy;zC();zT()}});
+const zu=e=>{if(!Z.p.has(e.pointerId))return;Z.p.delete(e.pointerId);if(Z.p.size>0)return;
+ if(Z.s<1.05){Z.s=1;Z.x=0;Z.y=0}zC();zT();
+ if(Z.multi)return;
+ const dx=e.clientX-Z.sx,dy=e.clientY-Z.sy;
+ if(Math.hypot(dx,dy)<10){const n=Date.now();if(n-Z.lt<300){Z.s=Z.s>1?1:2.5;Z.x=0;Z.y=0;zC();zT();Z.lt=0}else Z.lt=n}
+ else if(Z.s===1&&Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)){const j=Z.i+(dx<0?1:-1);if(j>=0&&j<Z.list.length){Z.i=j;zShow()}}};
+zv.addEventListener("pointerup",zu);zv.addEventListener("pointercancel",zu);
+zv.addEventListener("wheel",e=>{e.preventDefault();Z.s=Math.min(5,Math.max(1,Z.s*(e.deltaY<0?1.15:.87)));if(Z.s<1.05){Z.s=1;Z.x=0;Z.y=0}zC();zT()},{passive:false});
+
 document.addEventListener("click",async e=>{const t=e.target;
  if(t.id==="sheet"){close();return}
- const b=t.closest("[data-i],[data-s],[data-c],[data-a],[data-e],[data-t],[data-d],[data-sv],[data-r]");if(!b)return;const D=b.dataset;
+ const b=t.closest("[data-i],[data-s],[data-c],[data-a],[data-e],[data-t],[data-d],[data-sv],[data-r],[data-z]");if(!b)return;const D=b.dataset;
  try{
  if(D.i)show(D.i);
  else if(D.s){st=D.s;render()}else if(D.c){cat=D.c;render()}
  else if(D.e)form(D.e);
  else if(D.t){const x=M.find(m=>m.id===D.t);await db.collection("machines").doc(D.t).update({sold:!x.sold,soldAt:x.sold?null:Date.now()});close()}
  else if(D.d){if(confirm("Delete this machine permanently?")){await db.collection("machines").doc(D.d).delete();close()}}
+ else if(D.z!==undefined)zOpen(curPh,+D.z);
  else if(D.sv!==undefined)save(D.sv);
  else if(D.r){ph.splice(+D.r,1);thumbs()}
- else if(D.a==="x")close();else if(D.a==="add")form();else if(D.a==="set")settings();else if(D.a==="login")login();
+ else if(D.a==="x")close();else if(D.a==="zx")zClose();else if(D.a==="add")form();else if(D.a==="set")settings();else if(D.a==="login")login();
+ else if(D.a==="enter")enter();else if(D.a==="cust")custs();
+ else if(D.a==="cout"){try{localStorage.removeItem("cust")}catch(e){}gate()}
  else if(D.a==="out")await auth.signOut();
  else if(D.a==="li"){await auth.signInWithEmailAndPassword($("le").value.trim(),$("lp").value);close()}
  else if(D.a==="ss"){await db.doc("settings/main").set({name:$("sn").value.trim()||S.name,wa:$("sw").value.replace(/\D/g,""),phone:$("sp").value.trim()},{merge:true});close()}
  }catch(err){alert("Error: "+err.message)}});
 document.addEventListener("change",async e=>{if(e.target.id!=="fi")return;for(const f of [...e.target.files]){if(ph.length>=3)break;ph.push(await shrink(f))}e.target.value="";thumbs()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(zv.classList.contains("on"))zClose();else close()}});
 $("q").addEventListener("input",render);
 if(LIVE){firebase.initializeApp(CFG);db=firebase.firestore();auth=firebase.auth();
  db.collection("machines").orderBy("createdAt","desc").onSnapshot(s=>{M=s.docs.map(d=>({id:d.id,...d.data()}));render()});
  db.doc("settings/main").onSnapshot(d=>{if(d.exists){S={...S,...d.data()};head()}});
- auth.onAuthStateChanged(u=>{admin=!!u;render()});
+ auth.onAuthStateChanged(u=>{admin=!!u;render();gate()});
+ const c0=cust();if(c0)stamp(c0.name,c0.phone).catch(()=>{});
 }else{M=[
  {id:"d1",name:"6 Colour 6 Station Screen Printing Machine",cat:"Screen Printing",price:55000,cond:"Good",year:"2021",specs:"Stations: 6\nFrame size: 23 × 31 in\nRunning condition: Working"},
  {id:"d2",name:"A3 DTG Printer",cat:"DTG Printers",price:320000,cond:"Like new",year:"2023",specs:"Print area: 29 × 42 cm\nInks: CMYK + White"},
  {id:"d3",name:"Heat Press 15 × 15 in",cat:"Heat Press",price:7500,cond:"Fair",year:"2020",specs:"Temperature: up to 250 °C",sold:true}];}
-head();render();
+head();render();gate();
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
 </script>
 </body>
 </html>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe.css">
-<script type="module">
-import PhotoSwipeLightbox from 'https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js';
-import PhotoSwipe from 'https://cdn.jsdelivr.net/npm/photoswipe@5.4.4/dist/photoswipe.esm.min.js';
-new PhotoSwipeLightbox({
-  gallery: '.machine-images',
-  children: 'a',
-  pswpModule: PhotoSwipe
-}).init();
-</script> 
-<a href="IMG_URL" data-pswp-width="1200" data-pswp-height="900"><img src="IMG_URL"></a>
